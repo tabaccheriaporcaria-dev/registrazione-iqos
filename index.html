@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Registrazione IQOS</title>
+<style>
+/* Layout: single centered card, mobile-first kiosk form, warm navy/cream tobacconist palette with amber accent */
+:root{
+  --bg:#f7f2e7; --surface:#ffffff; --surface-2:#fbf8f1; --fg:#1b2a3d; --muted:#5c6b7c;
+  --accent:#b9872e; --accent-fg:#ffffff; --line:#c9bb95; --danger:#c0392b; --ok:#2f7d4f;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1620; --surface:#15212f; --surface-2:#182838; --fg:#eef1f5; --muted:#9aa7b4;
+    --accent:#d9a648; --accent-fg:#19130a; --line:#4a5f76; --danger:#e0695c; --ok:#5fbf86;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1620; --surface:#15212f; --surface-2:#182838; --fg:#eef1f5; --muted:#9aa7b4;
+  --accent:#d9a648; --accent-fg:#19130a; --line:#4a5f76; --danger:#e0695c; --ok:#5fbf86;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:0;padding-left:16px;padding-right:16px;padding-block:22px 40px;display:flex;justify-content:center}
+h1,h2,.disp{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{width:100%;max-width:460px}
+.brand{text-align:center;margin-bottom:18px}
+.brand .t{display:inline-flex;width:40px;height:40px;border-radius:9px;background:var(--fg);color:var(--bg);align-items:center;justify-content:center;font-family:system-ui,-apple-system,"Segoe UI",Roboto,serif;font-weight:700;font-size:20px;margin-bottom:8px}
+.brand h1{font-size:15px;letter-spacing:.4px;margin:0;color:var(--muted);font-weight:600}
+.brand h2{font-size:21px;margin:2px 0 0;font-weight:700}
+.card{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:20px;margin-bottom:14px}
+label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:0 0 6px}
+.field{margin-bottom:14px}
+input[type=text],input[type=tel],input[type=email],input[type=date]{
+  width:100%;background:var(--surface-2);border:2px solid var(--line);border-radius:10px;color:var(--fg);
+  font-size:16px;padding:11px 12px;font-family:inherit
+}
+input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.row2{display:flex;gap:10px}
+.row2 .field{flex:1;min-width:0}
+.hint{font-size:12px;color:var(--muted);margin-top:4px}
+.err{font-size:12px;color:var(--danger);margin-top:4px;display:none}
+.err.show{display:block}
+.doc{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.shot{position:relative;border:2.5px dashed var(--line);border-radius:12px;aspect-ratio:4/3;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--surface-2);cursor:pointer;min-width:0}
+.shot img{width:100%;height:100%;object-fit:cover;display:none}
+.shot.has img{display:block}
+.shot.has .ph{display:none}
+.ph{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);font-size:12px;text-align:center;padding:8px}
+.ph svg{width:26px;height:26px}
+.shot input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.shot .tag{position:absolute;bottom:4px;left:4px;right:4px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;text-align:center;border-radius:6px;padding:3px 0;font-weight:600;letter-spacing:.3px}
+.consent{background:var(--surface-2);border:2px solid var(--line);border-radius:12px;padding:12px;font-size:12.5px;line-height:1.55;color:var(--muted);max-height:150px;overflow-y:auto;margin-bottom:12px}
+.consent b{color:var(--fg)}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.4}
+.chk input{width:19px;height:19px;flex:none;margin-top:1px;accent-color:var(--accent)}
+.submit{width:100%;background:var(--accent);color:var(--accent-fg);border:0;border-radius:12px;padding:15px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer}
+.submit:disabled{opacity:.45;cursor:not-allowed}
+.foot{text-align:center;font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.5}
+.state{display:none;text-align:center;padding:30px 6px}
+.state.show{display:block}
+.state svg{width:58px;height:58px;margin-bottom:14px}
+.state h2{margin:0 0 8px}
+.state p{color:var(--muted);font-size:14px;line-height:1.5;margin:0 0 18px}
+.again{background:var(--surface-2);border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:11px 18px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer}
+#formView.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="t">T</div>
+    <h1>TABACCHERIA PORCARI ANTONELLO</h1>
+    <h2>Registrazione dispositivo</h2>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAVwAAAB7CAYAAAA4yDgWAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAACg+SURBVHhe7d2Hm2RVtQXw9x+94FOfvoeKiIoKKgqKGcwRERAQA6iooKCYFROKAREVBQOKilkJAypJgqQBxBlgFHO4r3+H3s2Zw63qqp7u21Xd+3zf+rrq3luhu89dZ++1w/m367Ze2SUSiURi7fFv9/v33bpEIpFIrD2ScBOJRGIgJOEmEonEQEjCTSQSiYGQhJtIJBIDIQk3kUgkBkISbiKRSAyEJNxEIpEYCEm4iUQiMRCScBOJRGIgJOEmEonEQEjCTSQSiYGQhJtIJBIDIQk3kUgkBkISbiKRSAyEJNxEIpEYCEm4iUQiMRCScBOJRGIgJOEmEonEQEjCTSQSiYGQhJtIJBIDIQk3kUgkBkISbiKRSAyEJNxEIpEYCEm4iUQiMRCScBOJOcdjH/Xk7txvfqf72U8v6M45+5vd0Uce291809bu8suu7P73gXt2++37rKVrf/SDn3QXXbil4NJLf7V0PK754cL5m268uXvXSe/rPnXq57qLL7q0++Y3zusO2O/ApWsTK0cSbiIx5zjj9C91L37BK8vjk096f2fs/pDHdiee8O7uzjvv6r52zrkFRxz2+u7sr3x96XWf/tTp3bFveFt36ic+0533re91t9362+70z32xnPvDH+4u7+vxEx731O787/1w6XWJlSMJN5FYZ5zwtnd1P/rhTwtB9p0fhccvECGCveLyq7pnPf0F5RgCveqqq4tl+pvrbuhuuOGmQph33bmj++53vt/93//sudN7INi//uWv3dOeclB39a+vLa/96U8u6H591TXdKR/6RLnm4QvkfeOC1fu+93y4e+p+z9np9YnpkISbSAyMR+7x+AXyOqW49Od/94fdR085tRDnhz7wse6wQ47ufU2LvR+zf3H9vea6667v7rjjzu6sL53d3XD9jd2jH/HEQsa7PeiRhUhJAq946eHdhRdc3O29137d9b+5obvm6uu6PR++T/fFM79SLN9vnfud7gXPfUV57/2f9KxCzIicRbz15lu67du2dx/+4McLET/nmS+6z/dJTIYk3ERiACAxFibtlNbqJ4vxmNe9pTvnq9/oLr3kl4X43nni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" alt="OPEN Insieme · Philip Morris" style="display:block;margin:14px auto 0;max-width:100%;width:100%;height:auto;border-radius:14px">
+  </div>
+
+  <div id="formView">
+    <form class="card" id="f" autocomplete="off">
+      <div class="field">
+        <label for="nm">Nome e cognome</label>
+        <input type="text" id="nm" required placeholder="Es. Mario Rossi">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="ph">Cellulare</label>
+          <input type="tel" id="ph" required placeholder="333 1234567">
+        </div>
+        <div class="field">
+          <label for="em">Email</label>
+          <input type="email" id="em" required placeholder="nome@email.it">
+        </div>
+      </div>
+      <div class="field" id="emOtpWrap">
+        <label>Verifica dell'email</label>
+        <div class="hint">Genera un codice e invialo dalla tua email a quella della tabaccheria: serve a controllare che l'indirizzo sia vero e tuo.</div>
+        <button type="button" class="again" id="emSendBtn" disabled style="width:100%;margin-top:6px">GENERA CODICE E APRI EMAIL</button>
+        <div id="emConfirmBox" style="display:none;margin-top:8px">
+          <div class="hint">Codice generato: <b id="emCodeShow"></b> · controlla di averlo inviato via email, poi conferma qui sotto.</div>
+          <button type="button" class="again" id="emConfirmBtn" style="width:100%;margin-top:6px;background:var(--ok);color:#fff;border-color:var(--ok)">✔ HO INVIATO L'EMAIL</button>
+        </div>
+        <div class="hint" id="emConfirmedMsg" style="display:none;color:var(--ok);font-weight:700;margin-top:6px">✔ Conferma email inviata</div>
+      </div>
+      <div class="field">
+        <label for="bd">Data di nascita</label>
+        <input type="date" id="bd" required>
+        <div class="err" id="bdErr">Deve avere almeno 18 anni per registrare il dispositivo.</div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="md">Modello dispositivo</label>
+          <input type="text" id="md" list="mdl" required placeholder="Es. IQOS ILUMA i">
+          <datalist id="mdl">
+            <option value="IQOS ILUMA">
+            <option value="IQOS ILUMA i">
+            <option value="IQOS ILUMA i PRIME">
+            <option value="IQOS ILUMA i ONE">
+            <option value="IQOS ORIGINALS DUO">
+          </datalist>
+        </div>
+        <div class="field">
+          <label for="cl">Colore</label>
+          <input type="text" id="cl" required placeholder="Es. Terracotta">
+        </div>
+      </div>
+
+      <label>Documento d'identità</label>
+      <div class="doc">
+        <div class="shot" id="shotF">
+          <input type="file" accept="image/*" capture="environment" id="fF">
+          <div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/></svg>Foto fronte</div>
+          <img id="imgF" alt="">
+          <div class="tag">FRONTE</div>
+        </div>
+        <div class="shot" id="shotR">
+          <input type="file" accept="image/*" capture="environment" id="fR">
+          <div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/></svg>Foto retro</div>
+          <img id="imgR" alt="">
+          <div class="tag">RETRO</div>
+        </div>
+      </div>
+      <div class="hint" style="margin:8px 0 16px">Tocca un riquadro per scattare o scegliere la foto del documento.</div>
+
+      <label>Informativa privacy</label>
+      <div class="consent"><b>Titolare del trattamento:</b> Tabaccheria Porcari Antonello, via XXV Luglio 2/c, 00046 Grottaferrata (RM) · antonelloporcari@gmail.com.<br><br>
+      <b>Finalità:</b> registrazione del dispositivo elettronico acquistato (IQOS/Philip Morris), verifica della maggiore età richiesta dalla normativa sulla vendita di sigarette elettroniche e dispositivi a tabacco riscaldato, gestione della garanzia del produttore.<br><br>
+      <b>Dati trattati:</b> dati anagrafici e di contatto, immagine del documento d'identità (fronte e retro), raccolti al solo fine di verificare identità ed età.<br><br>
+      <b>Base giuridica:</b> consenso dell'interessato (art. 6.1.a Reg. UE 2016/679) e obbligo di legge sulla verifica dell'età per la vendita di prodotti del tabacco (D.Lgs. 6/9/2005 n. 191 e succ. mod.).<br><br>
+      <b>Conservazione:</b> i dati sono conservati per il tempo necessario alle finalità indicate e comunque non oltre i termini di legge, poi cancellati.<br><br>
+      <b>Comunicazione a terzi:</b> i dati possono essere comunicati al produttore (Philip Morris) se necessario per la registrazione della garanzia del dispositivo.<br><br>
+      <b>Diritti dell'interessato:</b> accesso, rettifica, cancellazione, limitazione, opposizione e portabilità (artt. 15-22 GDPR), esercitabili scrivendo a antonelloporcari@gmail.com. Reclamo: Garante per la protezione dei dati personali (gpdp.it).</div>
+      <label class="chk"><input type="checkbox" id="ck" required><span>Letta l'informativa, autorizzo il trattamento dei miei dati personali, incluso il documento d'identità, per le finalità sopra indicate. Dichiaro di avere più di 18 anni.</span></label>
+
+      <button class="submit" id="go" type="submit" style="margin-top:16px" disabled>INVIA REGISTRAZIONE</button>
+      <div class="err show" id="genErr" style="display:none;text-align:center;margin-top:10px"></div>
+    </form>
+    <div class="foot">I dati vengono inviati alla tabaccheria in modo protetto e usati solo per la registrazione del dispositivo.</div>
+  </div>
+
+  <div class="state card" id="okState">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
+    <h2>Registrazione inviata</h2>
+    <p>Grazie! I tuoi dati sono stati inviati alla tabaccheria. Puoi mostrare questa schermata al banco se richiesto.</p>
+  </div>
+
+  <div class="state card" id="koState">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 16.5v.1"/></svg>
+    <h2>Invio non riuscito</h2>
+    <p>Controlla la connessione e riprova, oppure mostra questa schermata al banco.</p>
+    <button class="again" id="retry">RIPROVA</button>
+  </div>
+</div>
+
+<script>
+const W3K="33a25021-0a79-4753-a569-c095ed86e69b";
+const $=s=>document.querySelector(s);
+let blobF=null, blobR=null;
+
+function wireShot(shotId,inputId,imgId,setBlob){
+  const shot=$(shotId), inp=$(inputId), img=$(imgId);
+  inp.addEventListener('change',async()=>{
+    const file=inp.files&&inp.files[0]; if(!file)return;
+    try{
+      const blob=await compress(file,1000,.62);
+      setBlob(blob);
+      img.src=URL.createObjectURL(blob);
+      shot.classList.add('has');
+      checkReady();
+    }catch(e){}
+  });
+}
+function compress(file,maxDim,q){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onload=()=>{
+      const im=new Image();
+      im.onload=()=>{
+        let w=im.width,h=im.height;
+        if(w>h&&w>maxDim){h=h*maxDim/w;w=maxDim}else if(h>=w&&h>maxDim){w=w*maxDim/h;h=maxDim}
+        const c=document.createElement('canvas');c.width=w;c.height=h;
+        c.getContext('2d').drawImage(im,0,0,w,h);
+        c.toBlob(b=>b?res(b):rej(new Error('no blob')),'image/jpeg',q);
+      };
+      im.onerror=rej; im.src=fr.result;
+    };
+    fr.onerror=rej; fr.readAsDataURL(file);
+  });
+}
+wireShot('#shotF','#fF','#imgF',b=>blobF=b);
+wireShot('#shotR','#fR','#imgR',b=>blobR=b);
+
+function age18(dstr){
+  if(!dstr)return false;
+  const b=new Date(dstr+"T00:00:00"), t=new Date();
+  let a=t.getFullYear()-b.getFullYear();
+  const m=t.getMonth()-b.getMonth();
+  if(m<0||(m===0&&t.getDate()<b.getDate()))a--;
+  return a>=18;
+}
+function checkReady(){
+  const ok = $('#nm').value.trim() && $('#ph').value.trim() && $('#em').value.trim()
+    && $('#bd').value && age18($('#bd').value)
+    && $('#md').value.trim() && $('#cl').value.trim()
+    && blobF && blobR && $('#ck').checked
+    && emConfirmed;
+  $('#go').disabled=!ok;
+}
+['#nm','#ph','#em','#md','#cl'].forEach(s=>$(s).addEventListener('input',checkReady));
+$('#ck').addEventListener('change',checkReady);
+$('#bd').addEventListener('change',()=>{
+  const bad=$('#bd').value && !age18($('#bd').value);
+  $('#bdErr').classList.toggle('show',bad);
+  checkReady();
+});
+
+// ---- verifica email: il cliente genera un codice e lo invia lui stesso dalla sua
+// email a quella della tabaccheria, che può confrontarlo con quello scritto nel
+// modulo. Non è un OTP automatico (richiederebbe un servizio di invio email dedicato
+// con account a parte): è una conferma reale, verificabile a mano. Il cellulare non
+// ha più bisogno di verifica nel modulo: il link viene mandato dal titolare stesso
+// dal numero WhatsApp della tabaccheria direttamente al cliente, quindi il numero è
+// già certo.
+const SHOP_EMAIL="antonelloporcari@gmail.com";
+let emCode=null, emConfirmed=false;
+const genCode=()=>String(Math.floor(100000+Math.random()*900000));
+const emValid=()=>/\S+@\S+\.\S+/.test($('#em').value.trim());
+function refreshOtpButtons(){
+  $('#emSendBtn').disabled=!emValid();
+}
+$('#em').addEventListener('input',()=>{
+  refreshOtpButtons();
+  if(emConfirmed){emConfirmed=false;$('#emConfirmedMsg').style.display='none';$('#emConfirmBox').style.display='none';checkReady()}
+});
+$('#emSendBtn').addEventListener('click',()=>{
+  emCode=genCode();
+  const nm=$('#nm').value.trim()||'Cliente';
+  const subj=encodeURIComponent('Codice di verifica IQOS');
+  const body=encodeURIComponent(`Codice di verifica: ${emCode} - ${nm}`);
+  window.location.href=`mailto:${SHOP_EMAIL}?subject=${subj}&body=${body}`;
+  $('#emCodeShow').textContent=emCode;
+  $('#emConfirmBox').style.display='block';
+});
+$('#emConfirmBtn').addEventListener('click',()=>{
+  emConfirmed=true;
+  $('#emConfirmBox').style.display='none';
+  $('#emConfirmedMsg').style.display='block';
+  checkReady();
+});
+
+async function send(){
+  const fd=new FormData();
+  fd.append('access_key',W3K);
+  fd.append('subject','Registrazione IQOS · '+$('#nm').value.trim());
+  fd.append('from_name','Tabaccheria Porcari Antonello · Modulo IQOS');
+  fd.append('Nome e cognome',$('#nm').value.trim());
+  fd.append('Cellulare',$('#ph').value.trim());
+  fd.append('Email',$('#em').value.trim());
+  fd.append('Data di nascita',$('#bd').value);
+  fd.append('Modello',$('#md').value.trim());
+  fd.append('Colore',$('#cl').value.trim());
+  fd.append('Consenso privacy','Autorizzato il '+new Date().toLocaleString('it-IT'));
+  fd.append('Codice verifica email (controlla nella tua email)',emCode||'—');
+  fd.append('attachment',blobF,'documento_fronte.jpg');
+  fd.append('attachment',blobR,'documento_retro.jpg');
+  const r=await fetch('https://api.web3forms.com/submit',{method:'POST',body:fd});
+  const j=await r.json().catch(()=>({success:false}));
+  if(!j.success) throw new Error(j.message||'invio fallito');
+}
+
+$('#f').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const btn=$('#go'); btn.disabled=true; btn.textContent='INVIO IN CORSO…';
+  $('#genErr').style.display='none';
+  try{
+    await send();
+    $('#formView').classList.add('hide');
+    $('#okState').classList.add('show');
+  }catch(err){
+    $('#formView').classList.add('hide');
+    $('#koState').classList.add('show');
+  }finally{
+    btn.textContent='INVIA REGISTRAZIONE'; btn.disabled=false;
+  }
+});
+$('#retry').addEventListener('click',()=>{
+  $('#koState').classList.remove('show');
+  $('#formView').classList.remove('hide');
+});
+</script>
+</body>
+</html>
