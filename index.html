@@ -93,16 +93,6 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
           <input type="email" id="em" required placeholder="nome@email.it">
         </div>
       </div>
-      <div class="field" id="emOtpWrap">
-        <label>Verifica dell'email</label>
-        <div class="hint">Genera un codice e invialo dalla tua email a quella della tabaccheria: serve a controllare che l'indirizzo sia vero e tuo.</div>
-        <button type="button" class="again" id="emSendBtn" disabled style="width:100%;margin-top:6px">GENERA CODICE E APRI EMAIL</button>
-        <div id="emConfirmBox" style="display:none;margin-top:8px">
-          <div class="hint">Codice generato: <b id="emCodeShow"></b> · controlla di averlo inviato via email, poi conferma qui sotto.</div>
-          <button type="button" class="again" id="emConfirmBtn" style="width:100%;margin-top:6px;background:var(--ok);color:#fff;border-color:var(--ok)">✔ HO INVIATO L'EMAIL</button>
-        </div>
-        <div class="hint" id="emConfirmedMsg" style="display:none;color:var(--ok);font-weight:700;margin-top:6px">✔ Conferma email inviata</div>
-      </div>
       <div class="field">
         <label for="bd">Data di nascita</label>
         <input type="date" id="bd" required>
@@ -223,8 +213,7 @@ function checkReady(){
   const ok = $('#nm').value.trim() && $('#ph').value.trim() && $('#em').value.trim()
     && $('#bd').value && age18($('#bd').value)
     && $('#md').value.trim() && $('#cl').value.trim()
-    && blobF && blobR && $('#ck').checked
-    && emConfirmed;
+    && blobF && blobR && $('#ck').checked;
   $('#go').disabled=!ok;
 }
 ['#nm','#ph','#em','#md','#cl'].forEach(s=>$(s).addEventListener('input',checkReady));
@@ -232,40 +221,6 @@ $('#ck').addEventListener('change',checkReady);
 $('#bd').addEventListener('change',()=>{
   const bad=$('#bd').value && !age18($('#bd').value);
   $('#bdErr').classList.toggle('show',bad);
-  checkReady();
-});
-
-// ---- verifica email: il cliente genera un codice e lo invia lui stesso dalla sua
-// email a quella della tabaccheria, che può confrontarlo con quello scritto nel
-// modulo. Non è un OTP automatico (richiederebbe un servizio di invio email dedicato
-// con account a parte): è una conferma reale, verificabile a mano. Il cellulare non
-// ha più bisogno di verifica nel modulo: il link viene mandato dal titolare stesso
-// dal numero WhatsApp della tabaccheria direttamente al cliente, quindi il numero è
-// già certo.
-const SHOP_EMAIL="antonelloporcari@gmail.com";
-let emCode=null, emConfirmed=false;
-const genCode=()=>String(Math.floor(100000+Math.random()*900000));
-const emValid=()=>/\S+@\S+\.\S+/.test($('#em').value.trim());
-function refreshOtpButtons(){
-  $('#emSendBtn').disabled=!emValid();
-}
-$('#em').addEventListener('input',()=>{
-  refreshOtpButtons();
-  if(emConfirmed){emConfirmed=false;$('#emConfirmedMsg').style.display='none';$('#emConfirmBox').style.display='none';checkReady()}
-});
-$('#emSendBtn').addEventListener('click',()=>{
-  emCode=genCode();
-  const nm=$('#nm').value.trim()||'Cliente';
-  const subj=encodeURIComponent('Codice di verifica IQOS');
-  const body=encodeURIComponent(`Codice di verifica: ${emCode} - ${nm}`);
-  window.location.href=`mailto:${SHOP_EMAIL}?subject=${subj}&body=${body}`;
-  $('#emCodeShow').textContent=emCode;
-  $('#emConfirmBox').style.display='block';
-});
-$('#emConfirmBtn').addEventListener('click',()=>{
-  emConfirmed=true;
-  $('#emConfirmBox').style.display='none';
-  $('#emConfirmedMsg').style.display='block';
   checkReady();
 });
 
@@ -281,7 +236,6 @@ async function send(){
   fd.append('Modello',$('#md').value.trim());
   fd.append('Colore',$('#cl').value.trim());
   fd.append('Consenso privacy','Autorizzato il '+new Date().toLocaleString('it-IT'));
-  fd.append('Codice verifica email (controlla nella tua email)',emCode||'—');
   fd.append('attachment',blobF,'documento_fronte.jpg');
   fd.append('attachment',blobR,'documento_retro.jpg');
   const r=await fetch('https://api.web3forms.com/submit',{method:'POST',body:fd});
