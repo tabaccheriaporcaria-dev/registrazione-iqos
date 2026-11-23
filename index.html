@@ -78,30 +78,36 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
   </div>
 
   <div id="formView">
-    <form class="card" id="f" autocomplete="off">
+    <form class="card" id="f" autocomplete="off" action="https://formsubmit.co/antonelloporcari@gmail.com" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="_subject" value="Registrazione IQOS">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_next" value="https://tabaccheriaporcaria-dev.github.io/registrazione-iqos/?sent=1">
+      <input type="file" id="fileF" name="Foto fronte documento" style="display:none">
+      <input type="file" id="fileR" name="Foto retro documento" style="display:none">
       <div class="field">
         <label for="nm">Nome e cognome</label>
-        <input type="text" id="nm" required placeholder="Es. Mario Rossi">
+        <input type="text" id="nm" name="Nome e cognome" required placeholder="Es. Mario Rossi">
       </div>
       <div class="row2">
         <div class="field">
           <label for="ph">Cellulare</label>
-          <input type="tel" id="ph" required placeholder="333 1234567">
+          <input type="tel" id="ph" name="Cellulare" required placeholder="333 1234567">
         </div>
         <div class="field">
           <label for="em">Email</label>
-          <input type="email" id="em" required placeholder="nome@email.it">
+          <input type="email" id="em" name="Email" required placeholder="nome@email.it">
         </div>
       </div>
       <div class="field">
         <label for="bd">Data di nascita</label>
-        <input type="date" id="bd" required>
+        <input type="date" id="bd" name="Data di nascita" required>
         <div class="err" id="bdErr">Deve avere almeno 18 anni per registrare il dispositivo.</div>
       </div>
       <div class="row2">
         <div class="field">
           <label for="md">Modello dispositivo</label>
-          <input type="text" id="md" list="mdl" required placeholder="Es. IQOS ILUMA i">
+          <input type="text" id="md" name="Modello dispositivo" list="mdl" required placeholder="Es. IQOS ILUMA i">
           <datalist id="mdl">
             <option value="IQOS ILUMA">
             <option value="IQOS ILUMA i">
@@ -112,7 +118,7 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
         </div>
         <div class="field">
           <label for="cl">Colore</label>
-          <input type="text" id="cl" required placeholder="Es. Terracotta">
+          <input type="text" id="cl" name="Colore" required placeholder="Es. Terracotta">
         </div>
       </div>
 
@@ -165,7 +171,6 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
 </div>
 
 <script>
-const W3K="33a25021-0a79-4753-a569-c095ed86e69b";
 const $=s=>document.querySelector(s);
 let blobF=null, blobR=null;
 
@@ -225,51 +230,43 @@ $('#bd').addEventListener('change',()=>{
   checkReady();
 });
 
-async function send(){
-  const fd=new FormData();
-  fd.append('access_key',W3K);
-  fd.append('subject','Registrazione IQOS · '+$('#nm').value.trim());
-  fd.append('from_name','Tabaccheria Porcari Antonello · Modulo IQOS');
-  fd.append('Nome e cognome',$('#nm').value.trim());
-  fd.append('Cellulare',$('#ph').value.trim());
-  fd.append('Email',$('#em').value.trim());
-  fd.append('Data di nascita',$('#bd').value);
-  fd.append('Modello',$('#md').value.trim());
-  fd.append('Colore',$('#cl').value.trim());
-  fd.append('Consenso privacy','Autorizzato il '+new Date().toLocaleString('it-IT'));
-  fd.append('attachment',blobF,'documento_fronte.jpg');
-  fd.append('attachment',blobR,'documento_retro.jpg');
-  let r;
-  try{
-    r=await fetch('https://api.web3forms.com/submit',{method:'POST',body:fd});
-  }catch(netErr){
-    throw new Error('Rete: '+(netErr&&netErr.message||'connessione non raggiungibile'));
-  }
-  const j=await r.json().catch(()=>({success:false,message:'risposta non valida dal server (HTTP '+r.status+')'}));
-  if(!j.success) throw new Error(j.message||('invio rifiutato (HTTP '+r.status+')'));
+function attachBlob(inputSel,blob,filename){
+  const dt=new DataTransfer();
+  dt.items.add(new File([blob],filename,{type:'image/jpeg'}));
+  $(inputSel).files=dt.files;
 }
 
-$('#f').addEventListener('submit',async e=>{
-  e.preventDefault();
-  const btn=$('#go'); btn.disabled=true; btn.textContent='INVIO IN CORSO…';
-  $('#genErr').style.display='none';
-  try{
-    await send();
-    $('#formView').classList.add('hide');
-    $('#okState').classList.add('show');
-  }catch(err){
-    console.error('Registrazione IQOS - invio fallito:',err);
-    $('#koDetail').textContent='Dettaglio: '+(err&&err.message?err.message:'errore sconosciuto');
+$('#f').addEventListener('submit',e=>{
+  if(!navigator.onLine){
+    e.preventDefault();
+    $('#koDetail').textContent='Dettaglio: nessuna connessione a internet.';
     $('#formView').classList.add('hide');
     $('#koState').classList.add('show');
-  }finally{
-    btn.textContent='INVIA REGISTRAZIONE'; btn.disabled=false;
+    return;
   }
+  try{
+    attachBlob('#fileF',blobF,'documento_fronte.jpg');
+    attachBlob('#fileR',blobR,'documento_retro.jpg');
+  }catch(err){
+    e.preventDefault();
+    console.error('Registrazione IQOS - preparazione allegati fallita:',err);
+    $('#koDetail').textContent='Dettaglio: '+(err&&err.message?err.message:'errore nella preparazione delle foto');
+    $('#formView').classList.add('hide');
+    $('#koState').classList.add('show');
+    return;
+  }
+  const btn=$('#go'); btn.disabled=true; btn.textContent='INVIO IN CORSO…';
+  // da qui il browser esegue l'invio reale del form (navigazione) verso FormSubmit.co
 });
 $('#retry').addEventListener('click',()=>{
   $('#koState').classList.remove('show');
   $('#formView').classList.remove('hide');
 });
+
+if(new URLSearchParams(location.search).get('sent')==='1'){
+  $('#formView').classList.add('hide');
+  $('#okState').classList.add('show');
+}
 </script>
 </body>
 </html>
