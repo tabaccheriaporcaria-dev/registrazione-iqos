@@ -159,6 +159,7 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     <svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 16.5v.1"/></svg>
     <h2>Invio non riuscito</h2>
     <p>Controlla la connessione e riprova, oppure mostra questa schermata al banco.</p>
+    <p id="koDetail" style="font-size:12px;color:var(--muted);word-break:break-word"></p>
     <button class="again" id="retry">RIPROVA</button>
   </div>
 </div>
@@ -238,9 +239,14 @@ async function send(){
   fd.append('Consenso privacy','Autorizzato il '+new Date().toLocaleString('it-IT'));
   fd.append('attachment',blobF,'documento_fronte.jpg');
   fd.append('attachment',blobR,'documento_retro.jpg');
-  const r=await fetch('https://api.web3forms.com/submit',{method:'POST',body:fd});
-  const j=await r.json().catch(()=>({success:false}));
-  if(!j.success) throw new Error(j.message||'invio fallito');
+  let r;
+  try{
+    r=await fetch('https://api.web3forms.com/submit',{method:'POST',body:fd});
+  }catch(netErr){
+    throw new Error('Rete: '+(netErr&&netErr.message||'connessione non raggiungibile'));
+  }
+  const j=await r.json().catch(()=>({success:false,message:'risposta non valida dal server (HTTP '+r.status+')'}));
+  if(!j.success) throw new Error(j.message||('invio rifiutato (HTTP '+r.status+')'));
 }
 
 $('#f').addEventListener('submit',async e=>{
@@ -252,6 +258,8 @@ $('#f').addEventListener('submit',async e=>{
     $('#formView').classList.add('hide');
     $('#okState').classList.add('show');
   }catch(err){
+    console.error('Registrazione IQOS - invio fallito:',err);
+    $('#koDetail').textContent='Dettaglio: '+(err&&err.message?err.message:'errore sconosciuto');
     $('#formView').classList.add('hide');
     $('#koState').classList.add('show');
   }finally{
